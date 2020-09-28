@@ -54,7 +54,7 @@ class Model:
 			print("reading class ",class_name)
 			for image_path in glob.glob("Dataset/"+class_name+"/*.jpg"):
 				image=cv2.imread(image_path,cv2.IMREAD_GRAYSCALE)
-				image=cv2.resize(image,(200,200))
+				image=cv2.resize(image,(150,150))
 				
 				data.append(image)
 				labels.append(class_no)
@@ -96,11 +96,8 @@ class Model:
 		
 		self.model=Sequential()
 		
-		self.model.add(Conv2D(64,3,activation='relu',input_shape=self.trainx.shape[1:]))
+		self.model.add(Conv2D(32,3,activation='relu',input_shape=self.trainx.shape[1:]))
 		#self.model.add(Dropout(0.5))
-		self.model.add(MaxPool2D((5,5),strides=1,padding='same'))
-		self.model.add(Conv2D(32,3,activation='relu'))
-		self.model.add(Dropout(0.4))
 		self.model.add(MaxPool2D((5,5),strides=1,padding='same'))
 		self.model.add(Conv2D(32,3,activation='relu'))
 		self.model.add(Dropout(0.35))
