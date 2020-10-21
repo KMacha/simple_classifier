@@ -9,6 +9,7 @@ import os
 import numpy as np
 import glob
 import cv2
+import random
 
 import matplotlib.pyplot as plt
 
@@ -26,12 +27,14 @@ class Model:
 		
 		#normalise the data
 		#we divide the data into training set and test set
-		data=data.reshape(list(data.shape)+[1])
-		self.trainx,x,self.trainy,y=train_test_split(data,labels,test_size=0.40)
+		self.trainx,x,self.trainy,y=train_test_split(data,labels,test_size=0.20)
 		self.testx,self.valx,self.testy,self.valy=train_test_split(x,y,test_size=0.50)
 		
+		'''
 		self.testx=self.testx/255.0
 		self.valx=self.valx/255.0
+		'''
+		#don't preprocess first
 				
 		
 		print("feature shape: ",self.trainx.shape[1:])
@@ -46,15 +49,18 @@ class Model:
 		self.no_output=len(self.classes) #no of the output classes
 		print("number of classes: ",self.no_output)
 		print("Classes: ",self.classes)
+		np.savez_compressed("classes",self.classes)
 		
 		
 		data=[]
 		labels=[]
 		for class_no,class_name in enumerate(self.classes):
 			print("reading class ",class_name)
-			for image_path in glob.glob("Dataset/"+class_name+"/*.jpg"):
-				image=cv2.imread(image_path,cv2.IMREAD_GRAYSCALE)
-				image=cv2.resize(image,(150,150))
+			images_path=glob.glob("Dataset/"+class_name+"/*.jpg")
+			random.shuffle(images_path)
+			for image_path in images_path:
+				image=cv2.imread(image_path)
+				image=cv2.resize(image,(200,200))
 				
 				data.append(image)
 				labels.append(class_no)
@@ -63,7 +69,12 @@ class Model:
 		
 		self.shuffleDivideData(np.array(data),np.array(labels)) #to get the test dataset
 		
-			
+		np.savez_compressed("trainingset",self.trainx,self.trainy)
+		np.savez_compressed("validationset",self.valx,self.valy)
+		np.savez_compressed("testset",self.testx,self.testy)
+		print("saved the training,validation and test set")
+		
+		'''	
 		self.image_generator=ImageDataGenerator(rescale=1./255,zoom_range=0.45,horizontal_flip=True,
 				brightness_range=[0.2,1.8],rotation_range=10)
 		
@@ -72,14 +83,15 @@ class Model:
 		print("data generator created")
 		
 		#the number of steps of each epoch
-		self.epoch_steps=ceil(self.trainx.shape[0]/self.batch_size)		
+		self.epoch_steps=ceil(self.trainx.shape[0]/self.batch_size)
+		'''
 		
 	
 	def __init__(self):
 		
 		self.batch_size=32
 		self.readClasses()
-		
+		'''
 		#we define the model
 		self.defineModel()
 		
@@ -89,6 +101,7 @@ class Model:
 		
 		self.history=self.model.fit(self.train_data_generator,steps_per_epoch=self.epoch_steps,epochs=50,validation_data=(self.valx,self.valy))
 		self.model.evaluate(self.testx,self.testy)
+		'''
 		
 		
 	
@@ -146,5 +159,5 @@ class Model:
 
 
 classifier=Model()
-classifier.saveEverything()
-classifier.plotCurves()
+#classifier.saveEverything()
+#classifier.plotCurves()
